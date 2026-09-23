@@ -1,0 +1,25 @@
+name: build windows
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+      - name: build
+        run: dotnet publish src/windows/AiroRobloxBuilder.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o artifacts/windows
+
+      - name: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: airobloxbuilder-windows
+          path: artifacts/windows/
