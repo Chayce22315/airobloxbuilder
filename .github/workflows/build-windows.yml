@@ -15,7 +15,25 @@ jobs:
         with:
           dotnet-version: 8.x
 
-      - name: build
+      - name: setup rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: test native core
+        run: cargo test --manifest-path src/core/Cargo.toml
+
+      - name: test ai layer
+        shell: pwsh
+        run: |
+          python -m pip install pytest
+          $env:PYTHONPATH = "src/ai"
+          python -m pytest src/ai/tests
+
+      - name: build windows app
         run: dotnet publish src/windows/AiroRobloxBuilder.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o artifacts/windows
 
       - name: upload
