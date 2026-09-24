@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.20)
+project(airo_native LANGUAGES CXX)
+add_library(airo_native STATIC src/airo_native.cpp)
+target_include_directories(airo_native PUBLIC include)
+target_compile_features(airo_native PUBLIC cxx_std_20)
