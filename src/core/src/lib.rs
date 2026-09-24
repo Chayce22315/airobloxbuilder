@@ -3,6 +3,10 @@
 //! this crate intentionally stays platform-neutral. the windows and macos shells
 //! can use it as the stable home for requests, agent state, and project events.
 
+pub mod project;
+
+pub use project::ProjectSnapshot;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AiroRequest {
     pub text: String,
