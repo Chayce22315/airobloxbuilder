@@ -13,3 +13,24 @@ pub fn capabilities()->Vec<SystemCapability>{vec![
  SystemCapability{id:"processes".into(),available:true},
  SystemCapability{id:"roblox-studio-mcp".into(),available:false},
 ]}
+
+#[derive(Debug,Clone,Copy,PartialEq,Eq)]
+pub enum ConnectionState{Disconnected,Connecting,Connected}
+
+#[derive(Debug,Clone,Copy,PartialEq,Eq)]
+pub struct OnboardingState{
+ pub started:bool,
+ pub setup_confirmed:bool,
+ pub mcp_setup_attempted:bool,
+ pub mcp_connected:bool,
+ pub completed:bool,
+}
+impl Default for OnboardingState{
+ fn default()->Self{Self{started:false,setup_confirmed:false,mcp_setup_attempted:false,mcp_connected:false,completed:false}}
+}
+impl OnboardingState{
+ pub fn can_finish(&self)->bool{self.setup_confirmed&&self.mcp_setup_attempted}
+ pub fn resume_step(&self)->&'static str{
+  if !self.started{"welcome"} else if !self.setup_confirmed{"setup"} else{"mcp-connection"}
+ }
+}
