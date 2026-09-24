@@ -1,0 +1,5 @@
+{
+  "model": {"provider": "openai-compatible", "model": "configure-me", "endpoint": "http://localhost:1234/v1"},
+  "robloxStudioMcp": {"enabled": false},
+  "generation": {"allowOverwrite": false}
+}
