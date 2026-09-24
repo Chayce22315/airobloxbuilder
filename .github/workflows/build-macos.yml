@@ -1,23 +1,44 @@
 name: build macos
+
 on:
   push:
   pull_request:
+
 jobs:
   build:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: setup swift
         uses: swift-actions/setup-swift@v2
         with:
           swift-version: "6.0"
-      - name: build
+
+      - name: setup rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: test native core
+        run: cargo test --manifest-path src/core/Cargo.toml
+
+      - name: test ai layer
+        run: |
+          python -m pip install pytest
+          PYTHONPATH=src/ai python -m pytest src/ai/tests
+
+      - name: build macos app
         run: |
           cd src/macos
           swift build -c release
           mkdir -p ../../artifacts/macos/airobloxbuilder.app/Contents/MacOS
           cp .build/release/airobloxbuilder ../../artifacts/macos/airobloxbuilder.app/Contents/MacOS/airobloxbuilder
           cp ../../src/macos/Info.plist ../../artifacts/macos/airobloxbuilder.app/Contents/Info.plist
+
       - name: upload
         uses: actions/upload-artifact@v4
         with:
