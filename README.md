@@ -189,3 +189,14 @@ more implementation details will be added as the project grows.
 ## license
 
 see the repository license for the terms that apply to this project.
+
+
+## ai training
+
+the builder has multiple specialized ais rather than one monolithic brain. training is split by agent so each model can specialize in its own job.
+
+the training system supports orchestrator, code, gameplay, world, assets, animation, audio, ui, npc, networking, testing, repair, optimization, and documentation agents.
+
+training lives under `training/` and can run locally or through the manual github actions workflow. large model weights stay outside the normal desktop release.
+
+private user projects are not automatically added to training data.
