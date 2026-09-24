@@ -2,6 +2,8 @@
 pub mod generation;
 pub mod generator;
 pub mod orchestrator;
+pub mod graph;
+pub mod workspace;
 pub mod planner;
 pub mod mcp;
 pub mod model;
