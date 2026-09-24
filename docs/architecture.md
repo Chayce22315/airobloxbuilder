@@ -1,85 +1,110 @@
 # airobloxbuilder architecture
 
-airobloxbuilder is a native desktop application.
+airobloxbuilder is a native desktop studio for building roblox games through natural-language orchestration.
+
+## build order
+
+1. native ui
+2. native/shared logic
+3. python ai logic
+4. deeper project/task logic
+5. generation and model handling
+6. runtime systems
+7. cross-language integration
+8. release packaging
+
+this keeps generation from becoming tightly coupled to the ui or a specific model provider.
 
 ## platform shells
 
 - windows: c# / wpf
 - macos: swift / swiftui
 
-the platform shells own native windows, menus, dialogs, packaging, and platform integration.
+the shells own native windows, menus, dialogs, onboarding, platform integration, and packaging.
 
-## shared engine
+## shared native logic
 
-rust is the primary shared systems layer. platform shells communicate with it through a small stable api.
+rust is the stable shared systems layer.
 
-## core libraries
+c++ is used behind a small ffi boundary for native utilities where lower-level performance or platform access is useful. rust remains the owner of the public data model.
 
-1. airo-core: shared types and events
-2. airo-project: project state and filesystem model
-3. airo-orchestrator: agent coordination
-4. airo-agents: internal agent runtime
-5. airo-planner: living plans and dependency graphs
-6. airo-tasks: task lifecycle
-7. airo-memory: project context and history
-8. airo-models: model/provider abstraction
-9. airo-tools: tool execution
-10. airo-roblox: roblox project integration
-11. airo-luau: luau generation and analysis
-12. airo-assets: asset pipeline
-13. airo-animation: animation pipeline
-14. airo-audio: music and sound pipeline
-15. airo-networking: multiplayer/networking helpers
-16. airo-testing: test orchestration
-17. airo-repair: diagnosis and repair loops
-18. airo-mcp: mcp capability discovery and transport
+current core areas include requests, orchestration, project snapshots, task graphs, workspace changes, system capabilities, and onboarding state.
 
-## language boundaries
+## ai logic
 
-c# handles the windows shell and powershell integration.
+python owns provider-neutral ai orchestration primitives:
 
-swift handles the macos shell.
+- request and response contracts
+- agent routing
+- plan generation
+- generation jobs
+- model registry/provider interface
 
-rust handles shared native infrastructure.
+the ai layer does not assume a particular vendor or model.
 
-c++ is reserved for performance-sensitive native modules.
+## generation and model handling
 
-python handles training, datasets, evaluation, and research tooling.
+generation is split from model access.
 
-typescript and javascript handle protocol adapters and compatibility integrations.
+the model layer answers how to ask the configured model for a response.
 
-luau and lua handle roblox code and lua ecosystem compatibility.
+the generation layer answers what requests should be produced for a build job and how those requests map to planned work.
 
-go handles small infrastructure utilities.
+## runtime systems
 
-kotlin is reserved for future android tooling.
+runtime systems cover persistent state and external capabilities, including onboarding progress, roblox studio mcp state, filesystem/process capability discovery, and future provider configuration.
 
-sql handles structured local project data.
+mcp is optional. the app must never claim capabilities that the connected interface does not expose.
 
-bash and powershell handle automation.
+## cross-language boundary
 
-yaml defines github actions and other declarative automation.
+- c# handles the windows shell and powershell integration.
+- swift handles the macos shell.
+- rust handles shared native infrastructure.
+- c++ handles selected native utilities.
+- python handles ai orchestration, training, datasets, evaluation, and research tooling.
+- typescript defines protocol/event contracts and compatibility adapters.
+- javascript is available for compatible integrations.
+- luau/lua handle roblox code and lua ecosystem compatibility.
+- go handles small infrastructure utilities.
+- kotlin is reserved for future android tooling.
+- sql is reserved for structured local project data.
+- bash/powershell handle automation.
+- yaml defines github actions.
 
-not every language ships inside the desktop executable. tooling and training languages stay separate from the runtime when possible.
+heavy training data, model weights, sdk packs, and development toolchains remain optional whenever possible.
 
-## dependency rule
+## core library map
 
-higher layers may depend on lower layers, but libraries should not reach sideways into unrelated libraries.
+1. airo-core
+2. airo-project
+3. airo-orchestrator
+4. airo-agents
+5. airo-planner
+6. airo-tasks
+7. airo-memory
+8. airo-models
+9. airo-tools
+10. airo-roblox
+11. airo-luau
+12. airo-assets
+13. airo-animation
+14. airo-audio
+15. airo-networking
+16. airo-testing
+17. airo-repair
+18. airo-mcp
 
-```text
-native shell
-    ↓
-application api
-    ↓
-rust core
-    ↓
-orchestrator
-    ↓
-agents
-    ↓
-tools / integrations
-    ↓
-roblox
-```
+these are architectural boundaries. they do not all need to become separate operating-system packages.
 
-the goal is a large system with small, understandable boundaries.
+## dependency direction
+
+native ui
+  -> application api
+  -> rust core
+  -> ai planning
+  -> generation
+  -> agents and tools
+  -> roblox integration
+
+the goal is a large system with small, understandable boundaries and a small native application footprint.
