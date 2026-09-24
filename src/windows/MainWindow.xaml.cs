@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace AiroRobloxBuilder;
 
@@ -14,22 +15,20 @@ public partial class MainWindow : Window
     private void Send_Click(object sender, RoutedEventArgs e)
     {
         var text = PromptBox.Text.Trim();
-        if (string.IsNullOrWhiteSpace(text))
+        if (string.IsNullOrWhiteSpace(text) || text.StartsWith("describe your game"))
             return;
-
         AddMessage("you", text);
         PromptBox.Clear();
-        AddMessage("builder", "request received. the orchestrator is not connected yet, but the native shell is alive.");
+        AddMessage("builder", text.StartsWith("/plan")
+            ? "planning is ready for the native core. the planner will turn this request into tasks once the orchestrator is connected."
+            : "request accepted. routing is ready for the orchestrator and agent runtime.");
     }
 
     private void AddMessage(string speaker, string text)
     {
-        ChatMessages.Children.Add(new TextBlock
-        {
-            Text = $"{speaker}: {text}",
-            TextWrapping = TextWrapping.Wrap,
-            Margin = new Thickness(0, 0, 0, 14),
-            FontSize = 16
-        });
+        var panel = new StackPanel { Margin = new Thickness(0, 0, 0, 16) };
+        panel.Children.Add(new TextBlock { Text = speaker, FontWeight = FontWeights.SemiBold, Foreground = speaker == "you" ? Brushes.LightSkyBlue : Brushes.LightGreen });
+        panel.Children.Add(new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, FontSize = 15, Margin = new Thickness(0, 4, 0, 0) });
+        ChatMessages.Children.Add(panel);
     }
 }
