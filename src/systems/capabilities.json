@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "capabilities": [
+    "project.read",
+    "project.write",
+    "project.snapshot",
+    "agents.route",
+    "tasks.plan",
+    "tasks.update",
+    "generation.luau",
+    "generation.asset",
+    "generation.audio",
+    "testing.run",
+    "repair.apply",
+    "mcp.discover"
+  ]
+}
