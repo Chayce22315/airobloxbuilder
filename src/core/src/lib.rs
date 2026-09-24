@@ -1,8 +1,12 @@
 //! shared native foundation for airobloxbuilder.
+pub mod generation;
 pub mod generator;
 pub mod orchestrator;
 pub mod planner;
+pub mod mcp;
+pub mod model;
 pub mod project;
+pub mod system;
 pub mod tasks;
 
 pub use generator::GeneratedFile;
