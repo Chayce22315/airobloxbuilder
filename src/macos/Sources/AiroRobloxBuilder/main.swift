@@ -93,6 +93,12 @@ struct AgentPane: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("🧠 agents").font(.title2.weight(.semibold))
             Text("orchestrator  ● ready").padding(.top, 12)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("live work").font(.caption.bold()).foregroundStyle(.secondary)
+                Text("💬 chat  ● available")
+                Text("💻 code  ● available")
+                Text("both can run together").font(.caption2).foregroundStyle(.secondary)
+            }.padding(10).background(.quaternary.opacity(0.18)).clipShape(RoundedRectangle(cornerRadius: 8))
             Text("💻 code  ○ idle"); Text("🧱 world  ○ idle")
             Text("🎨 assets  ○ idle"); Text("🎞 animation  ○ idle")
             Text("🔊 audio  ○ idle"); Text("🧪 testing  ○ idle"); Text("🔧 repair  ○ idle")
