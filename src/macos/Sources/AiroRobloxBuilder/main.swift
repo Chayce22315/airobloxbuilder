@@ -16,7 +16,7 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("◈ airobloxbuilder").font(.title2.weight(.semibold))
+                HStack(spacing: 10) { Text("◈ airobloxbuilder").font(.title2.weight(.semibold)); Text("native").font(.caption).padding(.horizontal,8).padding(.vertical,4).background(.green.opacity(0.12)).clipShape(Capsule()) }
                 Spacer()
                 Text("● native shell ready").foregroundStyle(.green)
             }.padding(.horizontal, 18).frame(height: 54)
@@ -48,7 +48,7 @@ struct ProjectPane: View {
             Text("tasks").foregroundStyle(.secondary).bold().padding(.top, 20)
             Text("○ no active tasks").foregroundStyle(.secondary)
             Text("commands").foregroundStyle(.secondary).bold().padding(.top, 20)
-            Text("/plan   /tasks   /test   /fix").foregroundStyle(.secondary)
+            HStack(spacing: 6) { Text("/plan"); Text("/tasks"); Text("/test"); Text("/fix") }.font(.caption).foregroundStyle(.secondary)
             Spacer()
         }.padding(16).frame(width: 255, alignment: .topLeading).background(.quaternary.opacity(0.15))
     }
