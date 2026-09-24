@@ -4,8 +4,10 @@
 //! can use it as the stable home for requests, agent state, and project events.
 
 pub mod project;
+pub mod tasks;
 
 pub use project::ProjectSnapshot;
+pub use tasks::{AiroTask, TaskStatus};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AiroRequest {
