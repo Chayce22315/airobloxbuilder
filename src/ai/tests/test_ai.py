@@ -1,5 +1,4 @@
-from airo_ai.planner import make_plan
-from airo_ai.router import route_request
+from airo_ai import make_plan, route_request
 
 def test_routes_orchestrator_first():
     routes = route_request("make a mall with a zombie system")
