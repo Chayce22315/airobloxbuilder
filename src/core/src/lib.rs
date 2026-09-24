@@ -1,7 +1,4 @@
 //! shared native foundation for airobloxbuilder.
-//!
-//! this crate intentionally stays platform-neutral. the windows and macos shells
-//! can use it as the stable home for requests, agent state, and project events.
 
 pub mod orchestrator;
 pub mod project;
@@ -11,6 +8,11 @@ pub use orchestrator::{route, AgentPlan, Route};
 pub use project::ProjectSnapshot;
 pub use tasks::{AiroTask, TaskStatus};
 
+extern "C" {
+    fn airo_hash_bytes(data: *const u8, length: usize) -> u64;
+    fn airo_protocol_version() -> u32;
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AiroRequest {
     pub text: String,
@@ -18,13 +20,16 @@ pub struct AiroRequest {
 
 impl AiroRequest {
     pub fn new(text: impl Into<String>) -> Self {
-        Self {
-            text: text.into().trim().to_owned(),
-        }
+        Self { text: text.into().trim().to_owned() }
     }
 
     pub fn is_empty(&self) -> bool {
         self.text.is_empty()
+    }
+
+    pub fn fingerprint(&self) -> u64 {
+        let bytes = self.text.as_bytes();
+        unsafe { airo_hash_bytes(bytes.as_ptr(), bytes.len()) }
     }
 }
 
@@ -45,7 +50,6 @@ pub enum BuilderCommand {
     Message(String),
 }
 
-/// classify the small set of built-in slash commands before model routing.
 pub fn classify_command(request: &AiroRequest) -> BuilderCommand {
     let text = request.text.trim();
 
@@ -59,6 +63,10 @@ pub fn classify_command(request: &AiroRequest) -> BuilderCommand {
         "/fix" => BuilderCommand::Fix,
         _ => BuilderCommand::Message(text.to_owned()),
     }
+}
+
+pub fn protocol_version() -> u32 {
+    unsafe { airo_protocol_version() }
 }
 
 pub fn health() -> &'static str {
@@ -80,10 +88,7 @@ mod tests {
             classify_command(&AiroRequest::new("/plan make an infection game")),
             BuilderCommand::Plan("make an infection game".to_owned())
         );
-        assert_eq!(
-            classify_command(&AiroRequest::new("/tasks")),
-            BuilderCommand::Tasks
-        );
+        assert_eq!(classify_command(&AiroRequest::new("/tasks")), BuilderCommand::Tasks);
     }
 
     #[test]
@@ -92,5 +97,11 @@ mod tests {
             classify_command(&AiroRequest::new("add a secret basement")),
             BuilderCommand::Message("add a secret basement".to_owned())
         );
+    }
+
+    #[test]
+    fn native_protocol_is_available() {
+        assert_eq!(protocol_version(), 1);
+        assert_ne!(AiroRequest::new("hello").fingerprint(), 0);
     }
 }
