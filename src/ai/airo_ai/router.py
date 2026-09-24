@@ -19,11 +19,18 @@ class ModelRequest:
 def route_request(text: str) -> ModelRequest:
     value=text.strip()
     lower=value.lower()
-    if lower.startswith("/plan"): intent=Intent.PLAN
-    elif lower.startswith("/test"): intent=Intent.TEST
-    elif lower.startswith("/fix"): intent=Intent.FIX
-    elif any(x in lower for x in ("map","world","level","spawn")): intent=Intent.WORLD
-    elif any(x in lower for x in ("script","luau","code","function")): intent=Intent.CODE
-    elif any(x in lower for x in ("model","texture","asset","character")): intent=Intent.ASSET
-    else: intent=Intent.CHAT
+    if lower.startswith("/plan"):
+        intent=Intent.PLAN
+    elif lower.startswith("/test"):
+        intent=Intent.TEST
+    elif lower.startswith("/fix"):
+        intent=Intent.FIX
+    elif any(x in lower for x in ("map","world","level","spawn","mall","building","area","environment","zone","city")):
+        intent=Intent.WORLD
+    elif any(x in lower for x in ("script","luau","code","function")):
+        intent=Intent.CODE
+    elif any(x in lower for x in ("model","texture","asset","character")):
+        intent=Intent.ASSET
+    else:
+        intent=Intent.CHAT
     return ModelRequest(value,intent)
