@@ -25,4 +25,7 @@ def test_chat_and_code_run_concurrently():
         classify_work("write the Luau round function"),
     ])
     assert {result.kind for result in results} == {WorkKind.CHAT, WorkKind.CODE}
+    code_result = next(result for result in results if result.kind == WorkKind.CODE)
+    assert code_result.files[0][0].endswith(".luau")
+    assert "local function" in code_result.files[0][1]
     assert all(result.output for result in results)
