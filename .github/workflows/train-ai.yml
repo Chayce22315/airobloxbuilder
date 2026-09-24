@@ -1,0 +1,46 @@
+name: training validation
+
+on:
+  push:
+    paths:
+      - "training/**"
+  workflow_dispatch:
+    inputs:
+      train:
+        description: "run model training after validation"
+        required: true
+        default: false
+        type: boolean
+      model:
+        description: "base model id/path when training is enabled"
+        required: false
+        type: string
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: validate agent datasets
+        run: python training/validate.py
+
+  train:
+    if: inputs.train == true
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: install training stack
+        run: pip install torch transformers datasets accelerate
+      - name: train all agents
+        run: python training/train.py --all --model "${{ inputs.model }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: airo-agent-training-artifacts
+          path: training/artifacts/
