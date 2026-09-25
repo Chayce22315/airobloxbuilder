@@ -1,1 +1,5 @@
-{"prompt":"example npc task","response":"example npc training response"}
+{"prompt":"design a simple zombie npc state machine.","response":"use states such as idle, acquire-target, chase, attack, and defeated. keep target selection and attack validation on the server for multiplayer gameplay."}
+{"prompt":"a zombie keeps attacking a player after the player is out of range.","response":"recheck distance and line-of-sight or navigation validity before attacks, cancel stale attack state, and return the npc to chase or target selection."}
+{"prompt":"how should npc agents communicate with the networking agent?","response":"document replicated state that clients need, server-authoritative actions, and events required for visual feedback. do not expose trusted gameplay decisions to the client."}
+{"prompt":"create a basic npc spawn policy for a round.","response":"define allowed spawn zones, a maximum active count, spawn cooldowns, and cleanup rules. make the policy configurable so difficulty can change without rewriting the spawner."}
+{"prompt":"an npc path becomes blocked.","response":"detect the navigation failure, request a new path when appropriate, and use a bounded fallback rather than retrying forever."}
