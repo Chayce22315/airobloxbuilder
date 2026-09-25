@@ -1,1 +1,5 @@
-{"prompt":"example animation task","response":"example animation training response"}
+{"prompt":"a zombie needs an idle, walk, attack, and defeat animation set.","response":"define a consistent rig and animation naming scheme, make transitions readable, ensure the attack has a clear gameplay timing window, and verify that the code agent can trigger each state."}
+{"prompt":"an animation clips through the floor.","response":"check root motion assumptions, rig scale, root joint placement, and animation keyframes. fix the underlying rig or animation rather than hiding the problem with arbitrary offsets."}
+{"prompt":"make a simple door opening animation that can be triggered by a script.","response":"create a closed and open state with a predictable pivot, use a short transition, and expose a stable animation or transform interface for the code agent."}
+{"prompt":"how should animation and gameplay coordinate a melee attack?","response":"define an explicit attack window, animation marker or event, and cooldown. gameplay should validate hits independently instead of trusting the animation alone."}
+{"prompt":"a character rig changed after animation work was completed. what should the agent do?","response":"compare the rig structure, identify incompatible joints or naming changes, repair or retarget the animations, then run a playback test on the updated rig."}
