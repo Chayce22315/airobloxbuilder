@@ -1,1 +1,5 @@
-{"prompt":"example networking task","response":"example networking training response"}
+{"prompt":"design multiplayer replication for a round timer.","response":"the server owns the authoritative round state and timer. clients receive replicated state or events for display, while gameplay decisions remain server-side."}
+{"prompt":"a client asks the server to award itself 1000 coins.","response":"reject the request unless the server-side purchase or reward rules authorize it. never treat a client-provided currency amount as trusted state."}
+{"prompt":"how should a remote event request be validated?","response":"validate the player identity from the connection, argument types, allowed values, rate limits, current gameplay state, and server-side permissions before applying a change."}
+{"prompt":"players see different zombie counts.","response":"make the server authoritative over active npc state, replicate creation and removal consistently, and add a test that compares expected server state with client-visible state."}
+{"prompt":"design networking for a five-minute round start.","response":"the server transitions to the active state, records the authoritative start time or remaining duration, notifies clients, and prevents duplicate start transitions."}
