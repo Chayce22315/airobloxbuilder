@@ -1,1 +1,5 @@
-{"prompt":"example repair task","response":"example repair training response"}
+{"prompt":"a luau script errors because it indexes a missing object. how should repair approach it?","response":"identify whether the object path is wrong, the object is created later, or the object is optional. make the smallest correct fix, add a guard when appropriate, and run the relevant test."}
+{"prompt":"a world change broke a script's object path.","response":"compare the old and new hierarchy, update references to the intended object, search for other affected paths, and run integration tests rather than fixing only the first error."}
+{"prompt":"a generated system works in single-player but fails when two players join.","response":"reproduce the multiplayer case, inspect shared state and server/client ownership, isolate the race or authority bug, patch it, and rerun the multiplayer test."}
+{"prompt":"a fix introduces a new unrelated failure.","response":"revert or narrow the change, preserve the original reproduction case, and make a targeted repair with regression coverage."}
+{"prompt":"how should repair handle an unknown error?","response":"capture the exact error, stack or context available, affected artifact, recent changes, and reproduction steps. avoid guessing blindly, then test the smallest plausible diagnosis."}
