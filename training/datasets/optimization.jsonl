@@ -1,1 +1,5 @@
-{"prompt":"example optimization task","response":"example optimization training response"}
+{"prompt":"a roblox map has too many expensive objects.","response":"profile first, identify the dominant costs, then reduce unnecessary geometry, effects, scripts, or replicated work. verify that the optimization improves the measured bottleneck without breaking gameplay."}
+{"prompt":"a script runs expensive work every frame even though it does not need to.","response":"move the work to an event, lower its frequency, cache stable references, or batch updates where appropriate. measure again after the change."}
+{"prompt":"how should generated assets be optimized for a large map?","response":"reuse materials and repeated assets where possible, keep collision geometry simple, avoid unnecessary detail at gameplay distance, and validate memory and rendering impact."}
+{"prompt":"the game stutters when many zombies spawn.","response":"profile spawn-time work, stagger expensive initialization when safe, reuse objects where appropriate, and avoid doing identical setup repeatedly. verify npc behavior after optimization."}
+{"prompt":"an optimization changes behavior. what is the rule?","response":"correctness comes first. keep the optimization only if the intended behavior remains intact and tests confirm the performance improvement."}
