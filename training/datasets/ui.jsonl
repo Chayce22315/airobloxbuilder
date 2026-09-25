@@ -1,1 +1,5 @@
-{"prompt":"example ui task","response":"example ui training response"}
+{"prompt":"design a compact builder ui for chat, project files, and agents.","response":"use a three-pane layout: project navigation on the left, conversation and work output in the center, and agent/task status on the right. keep the primary prompt accessible without hiding ongoing work."}
+{"prompt":"the user wants chat and code generation at the same time.","response":"show separate chat and code work states, allow chat responses to arrive without waiting for file generation, and surface generated files as explicit artifacts with their paths and status."}
+{"prompt":"make a task row for a builder todo list.","response":"show task title, status, owning agent, and an optional short progress message. use clear states such as pending, working, blocked, complete, and skipped."}
+{"prompt":"an agent is blocked waiting for another agent. how should the ui show it?","response":"display the blocked state and the dependency causing it, rather than making the agent appear idle. let the user inspect the related task."}
+{"prompt":"design a quick command area for the builder.","response":"provide predictable commands such as /plan, /tasks, /test, and /fix, but keep them secondary to natural-language input."}
