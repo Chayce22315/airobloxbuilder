@@ -1,1 +1,5 @@
-{"prompt":"example audio task","response":"example audio training response"}
+{"prompt":"design an audio plan for a zombie round.","response":"separate ambience, music, player feedback, zombie sounds, objective cues, and round transitions. keep important gameplay cues distinguishable from background audio."}
+{"prompt":"a pickup sound is too loud compared with dialogue.","response":"normalize or reduce the pickup sound relative to the project's target levels, then test it in the actual gameplay mix instead of judging it in isolation."}
+{"prompt":"add an alarm when a five-minute round begins.","response":"trigger a short recognizable alarm at round start, avoid looping it unnecessarily, and ensure clients receive the event at the same gameplay transition."}
+{"prompt":"how should audio assets be organized?","response":"use predictable folders and names by purpose, such as ambience, music, sfx, ui, and voice. keep generated and imported assets identifiable and document dependencies used by scripts."}
+{"prompt":"an audio file causes a missing-asset error in a generated project.","response":"verify the asset identifier and location, update the reference to the actual available asset, and add a test that detects missing references before release."}
