@@ -1,1 +1,5 @@
-{"prompt":"example documentation task","response":"example documentation training response"}
+{"prompt":"document a new generated luau system.","response":"explain its purpose, entry point, expected hierarchy, public functions or events, important assumptions, and how to test it. keep the documentation aligned with the actual generated code."}
+{"prompt":"write a concise project note for the five-minute zombie round.","response":"document the round states, authoritative timer, spawn rules, win and loss conditions, rewards, and the main scripts or modules responsible for each part."}
+{"prompt":"what should an agent handoff document contain?","response":"include the completed work, changed artifacts, dependencies, known limitations, tests run and their results, and any follow-up task another agent must perform."}
+{"prompt":"the project hierarchy changed. what documentation should be updated?","response":"update any hierarchy diagrams, paths, setup notes, and script references that depend on the changed structure. remove stale paths instead of leaving contradictory instructions."}
+{"prompt":"how should generated code comments be written?","response":"comment non-obvious decisions, contracts, and safety assumptions. avoid comments that merely restate what a line of code already says."}
