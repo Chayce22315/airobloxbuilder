@@ -27,7 +27,7 @@ def test_tool_registry_inspects_project(tmp_path):
 def test_ipc_emits_json_lines():
     incoming = io.StringIO(json.dumps({"request_id": "7", "text": "hello"}) + "\n")
     outgoing = io.StringIO()
-    serve(incoming, outgoing)
+    serve(incoming, outgoing, provider=EchoProvider())
     events = [json.loads(line) for line in outgoing.getvalue().splitlines()]
     assert events[-1]["type"] == "complete"
     assert events[-1]["request_id"] == "7"
