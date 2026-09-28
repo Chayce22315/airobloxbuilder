@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "required": ["request", "plan", "agent", "artifact", "test_result", "accepted"],
+  "optional": ["repair"],
+  "privacy": {
+    "private_projects_default": false,
+    "training_requires_explicitly_permitted_data": true
+  }
+}
