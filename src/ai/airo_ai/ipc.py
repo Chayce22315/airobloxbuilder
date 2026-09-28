@@ -2,11 +2,9 @@ import json
 import sys
 from typing import TextIO
 from .providers import OpenAICompatibleProvider, ProviderRequest
+from .orchestrator import Orchestrator
 
-SYSTEM_PROMPT = """you are airobloxbuilder, a roblox game development ai.
-you help plan and build roblox games using luau, world design, assets, ui, gameplay, testing, repair, and project tools.
-be practical and concise. when the user asks to build something, explain the intended implementation and identify files or systems that should change.
-"""
+SYSTEM_PROMPT = """you are airobloxbuilder, a roblox game development ai. you help build games with luau, worlds, assets, ui, gameplay, testing, repair, and project tools."""
 
 def encode_event(event_type: str, request_id: str, message: str, **extra) -> str:
     payload = {"type": event_type, "request_id": request_id, "message": message, **extra}
@@ -15,6 +13,7 @@ def encode_event(event_type: str, request_id: str, message: str, **extra) -> str
 def serve(reader: TextIO = sys.stdin, writer: TextIO = sys.stdout, provider=None) -> None:
     if provider is None:
         provider = OpenAICompatibleProvider.from_environment()
+    orchestrator = Orchestrator(provider)
     for line in reader:
         if not line.strip():
             continue
@@ -26,14 +25,14 @@ def serve(reader: TextIO = sys.stdin, writer: TextIO = sys.stdout, provider=None
             writer.flush()
             continue
         try:
-            for event in provider.generate(ProviderRequest(text, SYSTEM_PROMPT)):
-                if event.type == "start":
-                    writer.write(encode_event("progress", request_id, "model is thinking") + "\n")
-                elif event.type == "text":
-                    writer.write(encode_event("text", request_id, event.text) + "\n")
-                elif event.type == "complete":
-                    writer.write(encode_event("complete", request_id, "response complete") + "\n")
-                writer.flush()
+            writer.write(encode_event("progress", request_id, "orchestrator received request") + "\n")
+            writer.flush()
+            result = orchestrator.run(text)
+            writer.write(encode_event("route", request_id, f"routed to: {', '.join(job.agent for job in result.jobs)}", agents=[job.agent for job in result.jobs], intent=result.intent) + "\n")
+            writer.flush()
+            writer.write(encode_event("text", request_id, result.response) + "\n")
+            writer.write(encode_event("complete", request_id, "orchestration complete") + "\n")
+            writer.flush()
         except Exception as exc:
             writer.write(encode_event("error", request_id, str(exc)) + "\n")
             writer.flush()
