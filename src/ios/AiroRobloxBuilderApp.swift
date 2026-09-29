@@ -63,9 +63,52 @@ struct PhoneRootView: View {
         messages.append(ChatItem(speaker: "you", text: value, kind: .user))
         prompt = ""
         messages.append(ChatItem(speaker: "airobloxbuilder", text: "🧠 planning your project...  •  ● ● ●", kind: .thinking))
+        ProjectStore().ensureProject(named: projectName)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
             messages.append(ChatItem(speaker: "airobloxbuilder", text: "✨ local project builder is ready. generated changes will be written into the project structure.", kind: .builder))
         }
+    }
+}
+
+final class ProjectStore {
+    private let fileManager = FileManager.default
+
+    func ensureProject(named name: String) {
+        guard let documents = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+        let root = documents.appendingPathComponent("airobloxbuilder/projects/\(safeName(name))", isDirectory: true)
+        let directories = [
+            "src/ServerScriptService",
+            "src/ReplicatedStorage/Shared",
+            "src/ReplicatedStorage/Remotes",
+            "src/StarterPlayer/StarterPlayerScripts",
+            "src/StarterGui",
+            "src/Workspace",
+            "src/ServerStorage",
+            "assets/models",
+            "assets/textures",
+            "assets/animations",
+            "assets/audio",
+            "tests"
+        ]
+        for directory in directories {
+            try? fileManager.createDirectory(at: root.appendingPathComponent(directory), withIntermediateDirectories: true)
+        }
+        let starter: [(String,String)] = [
+            ("src/ServerScriptService/GameManager.server.luau", "-- airobloxbuilder starter\nlocal GameManager = {}\nreturn GameManager\n"),
+            ("src/ReplicatedStorage/Shared/Config.luau", "return {\n    RoundLength = 300,\n    MaxPlayers = 12,\n}\n"),
+            ("src/StarterPlayer/StarterPlayerScripts/Client.client.luau", "-- client entry point\n"),
+            ("tests/GameManager.test.luau", "-- generated test entry point\n")
+        ]
+        for (path, contents) in starter {
+            let url = root.appendingPathComponent(path)
+            if !fileManager.fileExists(atPath: url.path) {
+                try? contents.write(to: url, atomically: true, encoding: .utf8)
+            }
+        }
+    }
+
+    private func safeName(_ value: String) -> String {
+        value.replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "-")
     }
 }
 
