@@ -55,7 +55,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     needs: validate
     # Actual QLoRA training needs a self-hosted NVIDIA GPU runner.
-    runs-on: [self-hosted, linux, x64, gpu]
+    runs-on: [self-hosted, windows, x64, gpu]
     environment: model-training
     steps:
       - uses: actions/checkout@v4
@@ -77,13 +77,13 @@ jobs:
           AGENT: ${{ inputs.agent }}
           EXAMPLES: ${{ inputs.examples_per_agent }}
         run: |
-          python training/generate_ghh_qsd.py             --agent "$AGENT"             --examples-per-agent "$EXAMPLES"             --output training/datasets
+          python training/generate_ghh_qsd.py --agent "$AGENT" --examples-per-agent "$EXAMPLES" --output training/datasets
 
       - name: quality gate G.H.H.Q.S.D.
         env:
           AGENT: ${{ inputs.agent }}
         run: |
-          python training/quality_gate.py             "training/datasets/$AGENT.jsonl"             --agent "$AGENT"
+          python training/quality_gate.py "training/datasets/$AGENT.jsonl" --agent "$AGENT"
 
       - name: resolve specialist model
         id: model
@@ -105,7 +105,7 @@ jobs:
           MODEL: ${{ steps.model.outputs.model }}
           EPOCHS: ${{ inputs.epochs }}
         run: |
-          python training/train.py             --agent "$AGENT"             --model "$MODEL"             --method qlora             --epochs "$EPOCHS"             --dataset "training/datasets/$AGENT.jsonl"             --output "models/adapters"
+          python training/train.py --agent "$AGENT" --model "$MODEL" --method qlora --epochs "$EPOCHS" --dataset "training/datasets/$AGENT.jsonl" --output "models/adapters"
 
       - uses: actions/upload-artifact@v4
         with:
