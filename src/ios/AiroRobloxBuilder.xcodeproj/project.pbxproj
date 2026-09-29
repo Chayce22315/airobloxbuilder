@@ -1,0 +1,25 @@
+// !$*UTF8*$!
+{
+ archiveVersion = 1;
+ classes = {};
+ objectVersion = 56;
+ objects = {
+  111111111111111111111111 /* AiroRobloxBuilderApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222222 /* AiroRobloxBuilderApp.swift */; };
+  333333333333333333333333 /* AiroRobloxBuilder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = airobloxbuilder.app; sourceTree = BUILT_PRODUCTS_DIR; };
+  444444444444444444444444 /* AiroRobloxBuilderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiroRobloxBuilderApp.swift; sourceTree = "<group>"; };
+  555555555555555555555555 = {isa = PBXGroup; children = (444444444444444444444444); path = AiroRobloxBuilder; sourceTree = "<group>"; };
+  666666666666666666666666 = {isa = PBXGroup; children = (555555555555555555555555); name = AiroRobloxBuilder; sourceTree = "<group>"; };
+  777777777777777777777777 = {isa = PBXGroup; children = (666666666666666666666666, 888888888888888888888888); sourceTree = "<group>"; };
+  888888888888888888888888 = {isa = PBXGroup; children = (); name = Products; sourceTree = "<group>"; };
+  999999999999999999999999 = {isa = PBXNativeTarget; buildConfigurationList = AAAAAAAAAAAAAAAAAAAAAAAA; buildPhases = (BBBBBBBBBBBBBBBBBBBBBBBB, CCCCCCCCCCCCCCCCCCCCCCCC); buildRules = (); dependencies = (); name = airobloxbuilder; productName = airobloxbuilder; productReference = 333333333333333333333333; productType = "com.apple.product-type.application"; };
+  BBBBBBBBBBBBBBBBBBBBBBBB = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (111111111111111111111111); runOnlyForDeploymentPostprocessing = 0; };
+  CCCCCCCCCCCCCCCCCCCCCCCC = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+  DDDDDDDDDDDDDDDDDDDDDDDD = {isa = PBXProject; attributes = {LastUpgradeCheck = 1600;}; buildConfigurationList = EEEEEEEEEEEEEEEEEEEEEEEE; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en); mainGroup = 777777777777777777777777; productRefGroup = 888888888888888888888888; projectDirPath = ""; projectRoot = ""; targets = (999999999999999999999999); };
+  EEEEEEEEEEEEEEEEEEEEEEEE = {isa = XCBuildConfiguration; buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; SDKROOT = iphoneos; }; name = Debug; };
+  FFFFFFFFFFFFFFFFFFFFFFFF = {isa = XCBuildConfiguration; buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; SDKROOT = iphoneos; }; name = Release; };
+  AAAAAAAAAAAAAAAAAAAAAAAA = {isa = XCConfigurationList; buildConfigurations = (121212121212121212121212, 131313131313131313131313); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+  121212121212121212121212 = {isa = XCBuildConfiguration; buildSettings = { PRODUCT_BUNDLE_IDENTIFIER = com.pixelatedstudios.airobloxbuilder; PRODUCT_NAME = airobloxbuilder; INFOPLIST_FILE = Info.plist; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = "1"; IPHONEOS_DEPLOYMENT_TARGET = 17.0; GENERATE_INFOPLIST_FILE = NO; CODE_SIGNING_ALLOWED = NO; }; name = Debug; };
+  131313131313131313131313 = {isa = XCBuildConfiguration; buildSettings = { PRODUCT_BUNDLE_IDENTIFIER = com.pixelatedstudios.airobloxbuilder; PRODUCT_NAME = airobloxbuilder; INFOPLIST_FILE = Info.plist; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = "1"; IPHONEOS_DEPLOYMENT_TARGET = 17.0; GENERATE_INFOPLIST_FILE = NO; CODE_SIGNING_ALLOWED = NO; }; name = Release; };
+ };
+ rootObject = DDDDDDDDDDDDDDDDDDDDDDDD;
+}
