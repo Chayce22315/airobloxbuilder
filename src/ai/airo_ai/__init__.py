@@ -1,6 +1,6 @@
 from .router import Intent, ModelRequest, route_request
 from .planner import PlanDraft, draft_plan
-from .providers import EchoProvider, ModelProvider, OpenAICompatibleProvider, ProviderEvent, ProviderRequest
+from .providers import EchoProvider, ModelProvider, OpenAICompatibleProvider, ProviderEvent, ProviderRequest, SpecialistProvider, SpecialistRuntime
 from .memory import ProjectMemory
 from .tools import ToolRegistry, ToolResult
 from .trajectory import Trajectory
@@ -11,7 +11,7 @@ def make_plan(text: str) -> PlanDraft:
 
 __all__ = [
     "Intent", "ModelRequest", "PlanDraft", "route_request", "draft_plan", "make_plan",
-    "EchoProvider", "ModelProvider", "OpenAICompatibleProvider", "ProviderEvent", "ProviderRequest",
+    "EchoProvider", "ModelProvider", "OpenAICompatibleProvider", "ProviderEvent", "ProviderRequest", "SpecialistProvider", "SpecialistRuntime",
     "ProjectMemory", "ToolRegistry", "ToolResult", "Trajectory",
     "AgentJob", "OrchestrationResult", "Orchestrator",
 ]
