@@ -116,7 +116,10 @@ class SpecialistRuntime:
         return self.adapter_root / agent
 
     def available(self, agent: str) -> bool:
-        path = self.adapter_path(agent)
+        try:
+            path = self.adapter_path(agent)
+        except RuntimeError:
+            return False
         return (path / "adapter_config.json").is_file() and (path / "adapter_model.safetensors").is_file()
 
     def load(self, agent: str):
