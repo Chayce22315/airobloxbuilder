@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "purpose": "base-model selection for airobloxbuilder specialist fine-tuning",
+  "selection_notes": [
+    "These are starting checkpoints, not trained airobloxbuilder models.",
+    "Prefer QLoRA/LoRA adapters so the base model stays untouched.",
+    "The factory requires a CUDA-capable runner for actual training.",
+    "Model licenses must be reviewed before redistribution."
+  ],
+  "models": {
+    "code": {
+      "model_id": "Qwen/Qwen3.5-9B",
+      "method": "qlora",
+      "reason": "Current small Qwen3.5 checkpoint with strong coding/agent potential and Apache-2.0 licensing.",
+      "max_seq_length": 4096,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "learning_rate": 0.0001
+    },
+    "design": {
+      "model_id": "google/gemma-4-E4B-it",
+      "method": "qlora",
+      "reason": "Compact multimodal Gemma 4 checkpoint suited to spatial, visual and agent-oriented design tasks.",
+      "max_seq_length": 4096,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "learning_rate": 0.0001
+    },
+    "animation": {
+      "model_id": "Qwen/Qwen3.5-4B",
+      "method": "qlora",
+      "reason": "Compact multimodal checkpoint for animation specifications, timing, asset manifests and content-planning outputs.",
+      "max_seq_length": 4096,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "learning_rate": 0.0001
+    },
+    "testing": {
+      "model_id": "Qwen/Qwen3.5-4B",
+      "method": "qlora",
+      "reason": "Compact current Qwen checkpoint that can be specialized around test generation, failure diagnosis and repair trajectories.",
+      "max_seq_length": 4096,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "learning_rate": 0.0001
+    }
+  }
+}
