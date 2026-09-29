@@ -1,17 +1,17 @@
 {
-  "schema_version": 1,
-  "purpose": "base-model selection for airobloxbuilder specialist fine-tuning",
+  "schema_version": 2,
+  "purpose": "base-model selection and runtime adapter mapping for airobloxbuilder specialist fine-tuning",
   "selection_notes": [
     "These are starting checkpoints, not trained airobloxbuilder models.",
     "Prefer QLoRA/LoRA adapters so the base model stays untouched.",
     "The factory requires a CUDA-capable runner for actual training.",
-    "Model licenses must be reviewed before redistribution."
+    "Runtime loads one adapter at a time by default to fit small GPUs."
   ],
   "models": {
     "code": {
       "model_id": "Qwen/Qwen3.5-9B",
       "method": "qlora",
-      "reason": "Current small Qwen3.5 checkpoint with strong coding/agent potential and Apache-2.0 licensing.",
+      "runtime_adapter_dir": "code",
       "max_seq_length": 4096,
       "lora_r": 16,
       "lora_alpha": 32,
@@ -20,7 +20,7 @@
     "design": {
       "model_id": "google/gemma-4-E4B-it",
       "method": "qlora",
-      "reason": "Compact multimodal Gemma 4 checkpoint suited to spatial, visual and agent-oriented design tasks.",
+      "runtime_adapter_dir": "design",
       "max_seq_length": 4096,
       "lora_r": 16,
       "lora_alpha": 32,
@@ -29,7 +29,7 @@
     "animation": {
       "model_id": "Qwen/Qwen3.5-4B",
       "method": "qlora",
-      "reason": "Compact multimodal checkpoint for animation specifications, timing, asset manifests and content-planning outputs.",
+      "runtime_adapter_dir": "animation",
       "max_seq_length": 4096,
       "lora_r": 16,
       "lora_alpha": 32,
@@ -38,7 +38,7 @@
     "testing": {
       "model_id": "Qwen/Qwen3.5-4B",
       "method": "qlora",
-      "reason": "Compact current Qwen checkpoint that can be specialized around test generation, failure diagnosis and repair trajectories.",
+      "runtime_adapter_dir": "testing",
       "max_seq_length": 4096,
       "lora_r": 16,
       "lora_alpha": 32,
