@@ -129,59 +129,77 @@ def code_artifact(scenario: str, constraint: str, variation: str) -> str:
         scenario,
         ("src/ServerScriptService/FeatureService.server.luau", "src/ReplicatedStorage/Shared/FeatureConfig.luau"),
     )
+    snippets = {
+        "zombie_rounds": "local RoundService = {}\nlocal phase = \"Intermission\"\nlocal roundNumber = 0\nfunction RoundService:Start() roundNumber += 1 phase = \"Spawning\" end\nfunction RoundService:Stop() phase = \"Intermission\" end\nreturn RoundService",
+        "inventory": "local InventoryService = {}\nlocal inventories = {}\nfunction InventoryService:Get(player) return inventories[player] end\nfunction InventoryService:Remove(player, itemId, amount) end\nreturn InventoryService",
+        "shop": "local ShopService = {}\nfunction ShopService:Purchase(player, itemId)\n    -- validate item, price, stock, and server-owned balance here\nend\nreturn ShopService",
+        "quests": "local QuestService = {}\nlocal progress = {}\nfunction QuestService:AddProgress(player, questId, amount) end\nfunction QuestService:Complete(player, questId) end\nreturn QuestService",
+        "boss": "local BossService = {}\nfunction BossService:Start(model) end\nfunction BossService:EnterPhase(model, phaseName) end\nfunction BossService:Stop(model) end\nreturn BossService",
+    }
+    snippet = snippets.get(scenario, "local FeatureService = {}\nfunction FeatureService:Start() end\nfunction FeatureService:Stop() end\nreturn FeatureService")
     return (
         "files:\n"
-        f"- {paths[0]}: server-authoritative service with explicit lifecycle and cleanup\n"
-        f"- {paths[1]}: typed/configured definitions consumed by the service\n"
-        "implementation_notes:\n"
-        "- validate every client-controlled argument before state mutation\n"
+        f"- {paths[0]}: server-authoritative service\n"
+        f"- {paths[1]}: shared typed/configuration boundary\n"
+        "luau_skeleton:\n"
+        f"{snippet}\n"
+        "implementation_contract:\n"
+        "- validate every client-controlled argument before mutation\n"
         "- keep mutable session state server-owned\n"
         "- isolate connections/tasks and clean them during teardown\n"
         f"- {constraint}\n"
         f"- {variation}"
     )
-
 def design_artifact(constraint: str, variation: str) -> str:
     return (
         "layout_spec:\n"
-        "- primary loop: spawn/orient -> discover -> engage -> recover -> progress\n"
-        "- landmarks: 3 strong navigational anchors plus one destination landmark\n"
-        "- routes: primary route plus at least one optional loop\n"
-        "- combat spaces: separated from safe spawn space with readable transitions\n"
-        "- hierarchy: macro silhouette -> landmark -> interaction -> decoration\n"
-        "acceptance:\n"
+        "- entry: visible orientation landmark and safe spawn\n"
+        "- primary_route: spawn -> orientation -> first interaction -> escalation -> destination\n"
+        "- optional_route: loop or shortcut that rejoins the main route\n"
+        "- landmarks: 3 strong visual anchors with distinct silhouettes\n"
+        "- encounter_spaces: separated from spawn space and readable from approach\n"
+        "- recovery_spaces: at least one low-pressure reset area\n"
+        "measurable_checks:\n"
+        "- no critical objective depends on a single visually ambiguous doorway\n"
+        "- major route choices have readable signs, geometry, or lighting cues\n"
+        "- decoration never blocks the intended traversal path\n"
         f"- {constraint}\n"
-        f"- {variation}\n"
-        "- every major space has a gameplay purpose, not decoration-only geometry"
+        f"- {variation}"
     )
-
 def animation_artifact(constraint: str, variation: str) -> str:
     return (
-        "animation_spec:\n"
-        "- clips: anticipation, action/loop, recovery, interruption where applicable\n"
-        "- priorities: locomotion < action < reaction < emergency override\n"
-        "- transitions: define blend-in/blend-out and cancellation rules\n"
-        "- timing: author clear contact beats and avoid ambiguous state ownership\n"
-        "- multiplayer: gameplay state comes from authoritative code, animation mirrors state\n"
+        "clip_table:\n"
+        "- idle: loop, 0.8-1.4s, cancellable by locomotion\n"
+        "- start: 0.2-0.5s, one-shot, blends into loop\n"
+        "- action: 0.3-1.2s, gameplay event aligned to a named contact marker\n"
+        "- recovery: 0.2-0.8s, returns to locomotion or idle\n"
+        "- reaction: 0.2-0.7s, higher priority than idle/action when required\n"
+        "state_rules:\n"
+        "- gameplay state is authoritative in code; animation mirrors it\n"
+        "- every one-shot has an interruption rule\n"
+        "- every loop has an exit transition\n"
+        "- animation names are stable and machine-readable\n"
         "acceptance:\n"
         f"- {constraint}\n"
         f"- {variation}"
     )
-
-def testing_artifact(constraint: str, variation: str) -> str:
+def testing_artifact(scenario: str, constraint: str, variation: str) -> str:
     return (
         "test_matrix:\n"
-        "- happy path: normal creation, use, completion, and cleanup\n"
-        "- boundaries: empty values, maximum values, repeated calls, rapid transitions\n"
-        "- adversarial: malformed client requests and invalid references\n"
+        "- happy_path: construct valid state and assert the expected observable result\n"
+        "- boundary: test zero, one, maximum, repeated, and empty-input cases\n"
+        "- adversarial: malformed client arguments, stale references, and unauthorized requests\n"
         "- lifecycle: join, leave, restart, shutdown, reconnect\n"
-        "- regression: reproduce the reported failure before verifying the repair\n"
+        "- concurrency: simultaneous requests must not duplicate rewards or corrupt state\n"
+        "example_assertions:\n"
+        "- round state enters the requested phase exactly once\n"
+        "- invalid purchase leaves balance and stock unchanged\n"
+        "- disconnected players are removed from active session state\n"
+        "- a repaired regression fails before the repair and passes after it\n"
         "acceptance:\n"
         f"- {constraint}\n"
-        f"- {variation}\n"
-        "- a test is only accepted when its assertion checks observable behavior"
+        f"- {variation}"
     )
-
 def make_row(agent: str, scenario: str, feature: str, focus: str, index: int) -> dict:
     rng = random.Random(f"{agent}:{scenario}:{index}")
     constraint = rng.choice(CONSTRAINTS)
@@ -232,6 +250,8 @@ def make_row(agent: str, scenario: str, feature: str, focus: str, index: int) ->
         "- static/project checks: pass when dependencies and paths resolve\n"
         "- behavioral checks: pass only when expected observable state changes occur\n"
         "- cleanup/lifecycle checks: pass with no duplicated connections or leaked session state\n"
+        "failure_repair:\n"
+        "- if a check fails, preserve the failing case, identify the smallest responsible boundary, repair it, and rerun the full regression set\n"
         "accepted: true"
     )
     return {
