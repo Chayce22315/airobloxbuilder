@@ -1,4 +1,4 @@
-name: training validation
+name: airo specialist fine-tuning factory
 
 on:
   push:
@@ -6,14 +6,24 @@ on:
       - "training/**"
   workflow_dispatch:
     inputs:
-      train:
-        description: "run model training after validation"
+      agent:
+        description: "specialist to fine-tune"
         required: true
-        default: false
-        type: boolean
-      model:
-        description: "base model id/path when training is enabled"
+        default: "code"
+        type: choice
+        options:
+          - code
+          - design
+          - animation
+          - testing
+      model_override:
+        description: "optional Hugging Face model id override"
         required: false
+        type: string
+      epochs:
+        description: "training epochs"
+        required: false
+        default: "1"
         type: string
 
 jobs:
@@ -26,21 +36,65 @@ jobs:
           python-version: "3.12"
       - name: validate agent datasets
         run: python training/validate.py
+      - name: inspect selected factory configuration
+        run: |
+          python - <<'PY'
+          import json
+          cfg = json.load(open("training/model_registry.json"))
+          print(json.dumps(cfg["models"], indent=2))
+          PY
 
   train:
-    if: inputs.train == true
+    if: github.event_name == 'workflow_dispatch'
     needs: validate
-    runs-on: ubuntu-latest
+    # GitHub-hosted Ubuntu runners do not provide the CUDA GPU needed for
+    # practical QLoRA training. Configure a self-hosted GPU runner with the
+    # appropriate NVIDIA driver/CUDA stack before enabling this job.
+    runs-on: [self-hosted, linux, x64, gpu]
+    environment: model-training
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: show GPU
+        run: nvidia-smi
+
       - name: install training stack
-        run: pip install torch transformers datasets accelerate
-      - name: train all agents
-        run: python training/train.py --all --model "${{ inputs.model }}"
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch transformers datasets accelerate peft bitsandbytes trl
+
+      - name: resolve specialist model
+        id: model
+        env:
+          AGENT: ${{ inputs.agent }}
+          MODEL_OVERRIDE: ${{ inputs.model_override }}
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          cfg = json.load(open("training/model_registry.json"))
+          agent = os.environ["AGENT"]
+          model = os.environ["MODEL_OVERRIDE"] or cfg["models"][agent]["model_id"]
+          print("model=" + model)
+          PY
+
+      - name: fine-tune specialist
+        env:
+          AGENT: ${{ inputs.agent }}
+          MODEL: ${{ steps.model.outputs.model }}
+          EPOCHS: ${{ inputs.epochs }}
+        run: |
+          python training/train.py \
+            --agent "$AGENT" \
+            --model "$MODEL" \
+            --method qlora \
+            --epochs "$EPOCHS" \
+            --output "training/artifacts"
+
       - uses: actions/upload-artifact@v4
         with:
-          name: airo-agent-training-artifacts
-          path: training/artifacts/
+          name: airo-${{ inputs.agent }}-adapter
+          path: training/artifacts/${{ inputs.agent }}/
