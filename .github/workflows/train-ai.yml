@@ -105,9 +105,9 @@ jobs:
           MODEL: ${{ steps.model.outputs.model }}
           EPOCHS: ${{ inputs.epochs }}
         run: |
-          python training/train.py             --agent "$AGENT"             --model "$MODEL"             --method qlora             --epochs "$EPOCHS"             --dataset "training/datasets/$AGENT.jsonl"             --output "training/artifacts"
+          python training/train.py             --agent "$AGENT"             --model "$MODEL"             --method qlora             --epochs "$EPOCHS"             --dataset "training/datasets/$AGENT.jsonl"             --output "models/adapters"
 
       - uses: actions/upload-artifact@v4
         with:
           name: airo-${{ inputs.agent }}-adapter
-          path: training/artifacts/${{ inputs.agent }}/
+          path: models/adapters/${{ inputs.agent }}/
