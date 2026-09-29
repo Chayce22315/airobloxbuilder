@@ -1,5 +1,7 @@
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Iterable, Protocol
+import gc
 import json
 import os
 import urllib.error
@@ -26,11 +28,7 @@ class EchoProvider:
         yield ProviderEvent("complete")
 
 class OpenAICompatibleProvider:
-    """Calls any OpenAI-compatible /chat/completions endpoint.
-
-    Configuration comes from AIRO_API_URL, AIRO_API_KEY and AIRO_MODEL.
-    This keeps model weights and credentials outside the app.
-    """
+    """Calls any OpenAI-compatible /chat/completions endpoint."""
     def __init__(self, base_url: str, api_key: str, model: str, timeout: int = 120) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
@@ -82,3 +80,141 @@ class OpenAICompatibleProvider:
             raise RuntimeError("model provider returned an invalid message")
         yield ProviderEvent("text", text)
         yield ProviderEvent("complete")
+
+
+class SpecialistRuntime:
+    """Loads a trained QLoRA adapter for one specialist on demand.
+
+    Adapters are discovered from AIRO_ADAPTER_ROOT/<agent>. The base model is
+    read from training/model_registry.json, and training_metadata.json is used
+    to prevent accidentally pairing an adapter with the wrong base model.
+    Only one specialist is kept resident at a time by default, which matters
+    on small GPUs such as an 8 GB RTX 5060.
+    """
+
+    def __init__(self, registry_path: Path | None = None, adapter_root: Path | None = None) -> None:
+        root = Path(__file__).resolve().parents[3]
+        self.registry_path = registry_path or root / "training" / "model_registry.json"
+        self.adapter_root = adapter_root or Path(
+            os.environ.get("AIRO_ADAPTER_ROOT", str(root / "models" / "adapters"))
+        )
+        self._agent = None
+        self._tokenizer = None
+        self._model = None
+
+    def _config(self, agent: str) -> dict:
+        data = json.loads(self.registry_path.read_text(encoding="utf-8"))
+        try:
+            return data["models"][agent]
+        except KeyError as exc:
+            raise RuntimeError(f"no specialist model registered for {agent!r}") from exc
+
+    def adapter_path(self, agent: str) -> Path:
+        configured = self._config(agent).get("runtime_adapter_dir")
+        if configured:
+            return self.adapter_root / configured
+        return self.adapter_root / agent
+
+    def available(self, agent: str) -> bool:
+        path = self.adapter_path(agent)
+        return (path / "adapter_config.json").is_file() and (path / "adapter_model.safetensors").is_file()
+
+    def load(self, agent: str):
+        if self._agent == agent and self._model is not None:
+            return self._tokenizer, self._model
+
+        if not self.available(agent):
+            raise FileNotFoundError(f"trained {agent} adapter not found at {self.adapter_path(agent)}")
+
+        config = self._config(agent)
+        base_model = config["model_id"]
+        metadata_path = self.adapter_path(agent) / "training_metadata.json"
+        if metadata_path.is_file():
+            metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+            trained_base = metadata.get("base_model")
+            if trained_base and trained_base != base_model:
+                raise RuntimeError(
+                    f"{agent} adapter was trained from {trained_base!r}, "
+                    f"but the registry expects {base_model!r}"
+                )
+
+        try:
+            import torch
+            from peft import PeftModel
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+        except ImportError as exc:
+            raise RuntimeError(
+                "specialist adapters require torch, transformers, peft, and accelerate"
+            ) from exc
+
+        self.unload()
+        tokenizer = AutoTokenizer.from_pretrained(
+            str(self.adapter_path(agent)), trust_remote_code=True
+        )
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+
+        dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+        base = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            torch_dtype=dtype,
+            device_map="auto",
+            trust_remote_code=True,
+        )
+        model = PeftModel.from_pretrained(base, str(self.adapter_path(agent)))
+        model.eval()
+        self._agent = agent
+        self._tokenizer = tokenizer
+        self._model = model
+        return tokenizer, model
+
+    def unload(self) -> None:
+        self._model = None
+        self._tokenizer = None
+        self._agent = None
+        gc.collect()
+        try:
+            import torch
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except ImportError:
+            pass
+
+    def generate(self, agent: str, request: ProviderRequest) -> Iterable[ProviderEvent]:
+        tokenizer, model = self.load(agent)
+        try:
+            import torch
+            prompt = request.prompt
+            if request.system:
+                prompt = f"{request.system}\n\nuser request:\n{request.prompt}"
+            inputs = tokenizer(prompt, return_tensors="pt")
+            device = next(model.parameters()).device
+            inputs = {key: value.to(device) for key, value in inputs.items()}
+            with torch.inference_mode():
+                output = model.generate(
+                    **inputs,
+                    max_new_tokens=int(os.environ.get("AIRO_SPECIALIST_MAX_TOKENS", "1024")),
+                    do_sample=False,
+                    pad_token_id=tokenizer.pad_token_id,
+                )
+            generated = output[0][inputs["input_ids"].shape[1]:]
+            text = tokenizer.decode(generated, skip_special_tokens=True).strip()
+            yield ProviderEvent("start")
+            yield ProviderEvent("text", text)
+            yield ProviderEvent("complete")
+        except Exception as exc:
+            raise RuntimeError(f"{agent} specialist generation failed: {exc}") from exc
+
+
+class SpecialistProvider:
+    """Adapter-backed provider with automatic fallback to the normal provider."""
+
+    def __init__(self, fallback: ModelProvider, runtime: SpecialistRuntime | None = None) -> None:
+        self.fallback = fallback
+        self.runtime = runtime or SpecialistRuntime()
+
+    def generate_for_agent(self, agent: str, request: ProviderRequest) -> Iterable[ProviderEvent]:
+        if self.runtime.available(agent):
+            yield from self.runtime.generate(agent, request)
+        else:
+            yield from self.fallback.generate(request)
