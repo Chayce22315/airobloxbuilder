@@ -1,36 +1,65 @@
-# airobloxbuilder training
+# airobloxbuilder specialist model factory
 
-this directory contains the training pipeline for the builder's specialized ai agents.
+the factory fine-tunes existing open-weight local models into airobloxbuilder specialists.
 
-## agents
+## current base checkpoints
 
-- orchestrator
-- code
-- gameplay
-- world
-- assets
-- animation
-- audio
-- ui
-- npc
-- networking
-- testing
-- repair
-- optimization
-- documentation
+- **code:** `Qwen/Qwen3.5-9B`
+- **design:** `google/gemma-4-E4B-it`
+- **animation:** `Qwen/Qwen3.5-4B`
+- **testing:** `Qwen/Qwen3.5-4B`
 
-each agent has its own dataset and output namespace. the pipeline can train one agent or all agents.
+these are base checkpoints. they are not airobloxbuilder-trained models yet.
 
-training is intentionally separate from the desktop application. model weights and large datasets are never bundled into the normal .exe or .app.
+the selections are intentionally small enough to be practical compared with current frontier coding models. the 9B code model is the heavier specialist; the other three keep the factory more manageable.
 
-## commands
+## training method
 
-```
-python training/train.py --agent code --model <base-model> --dataset training/datasets/code.jsonl
-python training/train.py --all --model <base-model>
-python training/validate.py
-```
+the factory uses **qlora**, not full-model training.
 
-the trainer uses the optional transformers/torch stack when installed. dataset validation and manifest generation work without those heavy dependencies.
+that means:
 
-do not automatically train on private user projects. training data must be explicitly supplied, permitted, synthetic, or otherwise licensed for training.
+1. download the selected base model
+2. load it in 4-bit
+3. freeze the base weights
+4. train a small lora adapter
+5. save the adapter and tokenizer
+6. benchmark the adapter
+7. only promote it if it passes the specialist evaluation suite
+
+the base model is never overwritten.
+
+## github actions
+
+the normal GitHub-hosted runner only validates datasets.
+
+actual fine-tuning uses a self-hosted runner with labels:
+
+`self-hosted, linux, x64, gpu`
+
+the runner needs a working NVIDIA/CUDA stack.
+
+run:
+
+`actions -> airo specialist fine-tuning factory -> run workflow`
+
+then choose:
+
+- `code`
+- `design`
+- `animation`
+- `testing`
+
+an optional model override is available for experiments.
+
+## hardware note
+
+the user's current 8 GB GPU should be treated as a constrained QLoRA target. the factory therefore keeps sequence length, batch size and gradient accumulation conservative.
+
+larger specialist checkpoints can be trained on a stronger self-hosted GPU without changing the dataset format.
+
+## data rule
+
+do not automatically train on private user projects.
+
+training examples must be explicitly supplied, permitted, synthetic, or otherwise licensed for training.
