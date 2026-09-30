@@ -77,13 +77,13 @@ jobs:
           AGENT: ${{ inputs.agent }}
           EXAMPLES: ${{ inputs.examples_per_agent }}
         run: |
-          python training/generate_ghh_qsd.py --agent "$AGENT" --examples-per-agent "$EXAMPLES" --output training/datasets
+          python training/generate_ghh_qsd.py --agent $env:AGENT --examples-per-agent $env:EXAMPLES --output training/datasets
 
       - name: quality gate G.H.H.Q.S.D.
         env:
           AGENT: ${{ inputs.agent }}
         run: |
-          python training/quality_gate.py "training/datasets/$AGENT.jsonl" --agent "$AGENT"
+          python training/quality_gate.py "training/datasets/$env:AGENT.jsonl" --agent $env:AGENT
 
       - name: resolve specialist model
         id: model
@@ -91,13 +91,7 @@ jobs:
           AGENT: ${{ inputs.agent }}
           MODEL_OVERRIDE: ${{ inputs.model_override }}
         run: |
-          python - <<'PY' >> "$GITHUB_OUTPUT"
-          import json, os
-          cfg = json.load(open("training/model_registry.json"))
-          agent = os.environ["AGENT"]
-          model = os.environ["MODEL_OVERRIDE"] or cfg["models"][agent]["model_id"]
-          print("model=" + model)
-          PY
+          python -c "import json,os; cfg=json.load(open('training/model_registry.json')); agent=os.environ['AGENT']; model=os.environ['MODEL_OVERRIDE'] or cfg['models'][agent]['model_id']; print('model=' + model)" >> $env:GITHUB_OUTPUT
 
       - name: fine-tune specialist
         env:
@@ -105,7 +99,7 @@ jobs:
           MODEL: ${{ steps.model.outputs.model }}
           EPOCHS: ${{ inputs.epochs }}
         run: |
-          python training/train.py --agent "$AGENT" --model "$MODEL" --method qlora --epochs "$EPOCHS" --dataset "training/datasets/$AGENT.jsonl" --output "models/adapters"
+          python training/train.py --agent $env:AGENT --model $env:MODEL --method qlora --epochs $env:EPOCHS --dataset "training/datasets/$env:AGENT.jsonl" --output "models/adapters"
 
       - uses: actions/upload-artifact@v4
         with:
