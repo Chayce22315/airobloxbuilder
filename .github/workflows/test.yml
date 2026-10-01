@@ -20,7 +20,7 @@ jobs:
           python-version: "3.12"
       - run: python -m compileall ai src/ai
       - run: python -m pip install pytest
-      - run: python -m pytest -q src/ai/tests
+      - run: PYTHONPATH=src/ai python -m pytest -q src/ai/tests
   native:
     runs-on: ubuntu-latest
     steps:
