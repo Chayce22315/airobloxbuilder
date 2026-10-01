@@ -87,6 +87,29 @@ use create only for missing files and update only for existing files. never use 
                 if parsed:
                     changes = changes + parsed
 
+        if project and request.intent.value == "test":
+            validation = validate_after_changes(project.root)
+            outputs.append("[testing]\n" + validation.summary)
+
+        if project and request.intent.value == "fix" and not validation:
+            validation = validate_after_changes(project.root)
+            if not validation.ok:
+                repair_system = self._system("repair", ProjectContext.inspect(project.root).prompt())
+                repair_request = (
+                    "repair the existing Roblox project. validation failed:\n"
+                    + validation.summary
+                    + "\nreturn JSON file changes only. use action update for existing files and create for new files."
+                )
+                repair_changes = self._request_changes("repair", repair_request, repair_system)
+                repair_issues = validate_changes(project.root, repair_changes)
+                if not repair_issues and repair_changes:
+                    apply_changes(project.root, repair_changes)
+                    changes = repair_changes
+                    validation = validate_after_changes(project.root)
+                    outputs.append("[repair]\n" + validation.summary)
+                else:
+                    outputs.append("[repair]\nno safe repair changes were produced")
+
         if project and changes:
             change_issues = validate_changes(project.root, changes)
             if change_issues:
