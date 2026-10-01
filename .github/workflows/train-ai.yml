@@ -13,9 +13,15 @@ on:
         type: choice
         options:
           - code
-          - design
+          - world
+          - assets
           - animation
+          - audio
+          - ui
+          - npc
+          - networking
           - testing
+          - repair
       model_override:
         description: "optional Hugging Face model id override"
         required: false
