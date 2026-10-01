@@ -82,9 +82,13 @@ def train_qlora(agent: str, model_name: str, dataset: Path, output: Path, epochs
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         quantization_config=quantization,
-        device_map="auto",
+        # Keep the quantized model entirely on the RTX 5060. This avoids the
+        # bitsandbytes CPU/disk dispatch failure seen with larger checkpoints.
+        device_map={"": 0},
         trust_remote_code=True,
     )
+
+    model.config.use_cache = False
 
     lora = LoraConfig(
         r=int(config.get("lora_r", 16)),
@@ -99,7 +103,7 @@ def train_qlora(agent: str, model_name: str, dataset: Path, output: Path, epochs
         output_dir=str(output),
         num_train_epochs=epochs,
         per_device_train_batch_size=1,
-        gradient_accumulation_steps=16,
+        gradient_accumulation_steps=int(config.get("gradient_accumulation_steps", 32)),
         learning_rate=float(config.get("learning_rate", 1e-4)),
         logging_steps=5,
         save_strategy="epoch",
