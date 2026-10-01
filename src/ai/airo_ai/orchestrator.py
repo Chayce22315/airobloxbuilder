@@ -40,6 +40,13 @@ class Orchestrator:
             return "you are the lead orchestrator for airobloxbuilder. coordinate roblox game development specialists. summarize the plan and concrete implementation steps.\n\n" + self.memory.context()
         if agent in {"code", "world", "assets", "animation", "audio", "ui", "npc", "networking", "testing", "repair"}:
             base += f"\n\nyour specialist role: {agent}"
+            if agent in {"code", "world", "npc", "networking", "ui"}:
+                base += """
+
+when you need to modify the project, return JSON only in this exact shape:
+{"files":[{"path":"src/ServerScriptService/Example.server.luau","action":"create","content":"..."}]}
+use create only for missing files and update only for existing files. never use absolute paths or paths containing .. .
+"""
         if context:
             base += "\n\n" + context
         return base
