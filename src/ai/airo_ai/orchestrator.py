@@ -4,7 +4,7 @@ from .planner import draft_plan
 from .router import route_request
 from .providers import ModelProvider, ProviderRequest, SpecialistProvider
 from .memory import ProjectMemory
-from .project_engine import ProjectContext, FileChange, parse_changes, validate_changes, apply_changes, validate_after_changes
+from .project_engine import ProjectContext, FileChange, parse_changes, validate_changes, apply_changes, validate_after_changes, ensure_project_layout
 
 @dataclass(frozen=True)
 class AgentJob:
@@ -62,6 +62,8 @@ use create only for missing files and update only for existing files. never use 
         request = route_request(text)
         plan = draft_plan(text)
         agents = list(dict.fromkeys(plan.agents))
+        if self.project_root:
+            ensure_project_layout(self.project_root)
         project = ProjectContext.inspect(self.project_root) if self.project_root else None
         context = project.prompt() if project else ""
         jobs = []
