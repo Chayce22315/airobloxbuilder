@@ -82,8 +82,10 @@ use create only for missing files and update only for existing files. never use 
             result = "".join(result_chunks).strip()
             if result:
                 outputs.append(f"[{agent}]\n{result}")
-            if agent == "code" and project:
-                changes = parse_changes(result)
+            if project and agent in {"code", "world", "npc", "networking", "ui"}:
+                parsed = parse_changes(result)
+                if parsed:
+                    changes = changes + parsed
 
         if project and changes:
             change_issues = validate_changes(project.root, changes)
