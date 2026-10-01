@@ -38,3 +38,11 @@ def test_luau_validator_catches_unclosed_block():
 def test_luau_validator_catches_unexpected_end():
     issues = validate_text("bad.luau", "return true\nend")
     assert issues
+
+
+def test_ensure_project_layout_creates_rojo_manifest(tmp_path):
+    from airo_ai.project_engine import ensure_project_layout
+    ensure_project_layout(tmp_path, "zombie mall")
+    manifest = json.loads((tmp_path / "project.json").read_text(encoding="utf-8"))
+    assert manifest["name"] == "zombie mall"
+    assert (tmp_path / "src" / "ServerScriptService").is_dir()
