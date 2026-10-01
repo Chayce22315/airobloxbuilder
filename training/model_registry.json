@@ -1,48 +1,131 @@
 {
-  "schema_version": 2,
-  "purpose": "base-model selection and runtime adapter mapping for airobloxbuilder specialist fine-tuning",
+  "schema_version": 3,
+  "purpose": "base-model selection and runtime adapter mapping for airobloxbuilder specialist fine-tuning on small consumer GPUs",
+  "hardware_profile": {
+    "gpu": "NVIDIA GeForce RTX 5060",
+    "vram_gib": 8,
+    "strategy": "4-bit QLoRA, one specialist adapter resident at a time",
+    "max_seq_length": 2048,
+    "per_device_train_batch_size": 1,
+    "gradient_accumulation_steps": 32
+  },
   "selection_notes": [
+    "Use compact checkpoints that leave VRAM headroom for QLoRA activations and the Windows display.",
+    "The default specialist base is Qwen/Qwen3.5-4B, an Apache-2.0 checkpoint suitable for task-specific fine-tuning.",
+    "Specialists are separate LoRA adapters; the runtime loads one adapter at a time rather than ten models simultaneously.",
     "These are starting checkpoints, not trained airobloxbuilder models.",
-    "Prefer QLoRA/LoRA adapters so the base model stays untouched.",
-    "The factory requires a CUDA-capable runner for actual training.",
-    "Runtime loads one adapter at a time by default to fit small GPUs."
+    "If a future checkpoint does not fit the 8 GiB profile, replace only that specialist's model_id."
   ],
   "models": {
     "code": {
-      "model_id": "Qwen/Qwen3.5-9B",
+      "model_id": "Qwen/Qwen3.5-4B",
       "method": "qlora",
       "runtime_adapter_dir": "code",
-      "max_seq_length": 4096,
+      "max_seq_length": 2048,
       "lora_r": 16,
       "lora_alpha": 32,
-      "learning_rate": 0.0001
+      "learning_rate": 0.0001,
+      "gradient_accumulation_steps": 32
     },
-    "design": {
-      "model_id": "google/gemma-4-E4B-it",
+    "world": {
+      "model_id": "Qwen/Qwen3.5-4B",
       "method": "qlora",
-      "runtime_adapter_dir": "design",
-      "max_seq_length": 4096,
+      "runtime_adapter_dir": "world",
+      "max_seq_length": 2048,
       "lora_r": 16,
       "lora_alpha": 32,
-      "learning_rate": 0.0001
+      "learning_rate": 0.0001,
+      "gradient_accumulation_steps": 32
+    },
+    "assets": {
+      "model_id": "Qwen/Qwen3.5-4B",
+      "method": "qlora",
+      "runtime_adapter_dir": "assets",
+      "max_seq_length": 2048,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "learning_rate": 0.0001,
+      "gradient_accumulation_steps": 32
     },
     "animation": {
       "model_id": "Qwen/Qwen3.5-4B",
       "method": "qlora",
       "runtime_adapter_dir": "animation",
-      "max_seq_length": 4096,
+      "max_seq_length": 2048,
       "lora_r": 16,
       "lora_alpha": 32,
-      "learning_rate": 0.0001
+      "learning_rate": 0.0001,
+      "gradient_accumulation_steps": 32
+    },
+    "audio": {
+      "model_id": "Qwen/Qwen3.5-4B",
+      "method": "qlora",
+      "runtime_adapter_dir": "audio",
+      "max_seq_length": 2048,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "learning_rate": 0.0001,
+      "gradient_accumulation_steps": 32
+    },
+    "ui": {
+      "model_id": "Qwen/Qwen3.5-4B",
+      "method": "qlora",
+      "runtime_adapter_dir": "ui",
+      "max_seq_length": 2048,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "learning_rate": 0.0001,
+      "gradient_accumulation_steps": 32
+    },
+    "npc": {
+      "model_id": "Qwen/Qwen3.5-4B",
+      "method": "qlora",
+      "runtime_adapter_dir": "npc",
+      "max_seq_length": 2048,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "learning_rate": 0.0001,
+      "gradient_accumulation_steps": 32
+    },
+    "networking": {
+      "model_id": "Qwen/Qwen3.5-4B",
+      "method": "qlora",
+      "runtime_adapter_dir": "networking",
+      "max_seq_length": 2048,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "learning_rate": 0.0001,
+      "gradient_accumulation_steps": 32
     },
     "testing": {
       "model_id": "Qwen/Qwen3.5-4B",
       "method": "qlora",
       "runtime_adapter_dir": "testing",
-      "max_seq_length": 4096,
+      "max_seq_length": 2048,
       "lora_r": 16,
       "lora_alpha": 32,
-      "learning_rate": 0.0001
+      "learning_rate": 0.0001,
+      "gradient_accumulation_steps": 32
+    },
+    "repair": {
+      "model_id": "Qwen/Qwen3.5-4B",
+      "method": "qlora",
+      "runtime_adapter_dir": "repair",
+      "max_seq_length": 2048,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "learning_rate": 0.0001,
+      "gradient_accumulation_steps": 32
+    },
+    "optimization": {
+      "model_id": "Qwen/Qwen3.5-4B",
+      "method": "qlora",
+      "runtime_adapter_dir": "optimization",
+      "max_seq_length": 2048,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "learning_rate": 0.0001,
+      "gradient_accumulation_steps": 32
     }
   }
 }
