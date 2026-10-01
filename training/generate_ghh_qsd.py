@@ -87,6 +87,38 @@ SEED_SCENARIOS = {
     ],
 }
 
+SPECIALIST_SCENARIOS = {
+    "code": SEED_SCENARIOS["code"],
+    "world": SEED_SCENARIOS["design"],
+    "assets": SEED_SCENARIOS["design"],
+    "animation": SEED_SCENARIOS["animation"],
+    "audio": SEED_SCENARIOS["animation"],
+    "ui": SEED_SCENARIOS["design"],
+    "npc": SEED_SCENARIOS["code"],
+    "networking": SEED_SCENARIOS["code"],
+    "testing": SEED_SCENARIOS["testing"],
+    "repair": SEED_SCENARIOS["testing"],
+    "optimization": SEED_SCENARIOS["testing"],
+}
+
+# Keep the specialist corpus generator aligned with the runtime registry while
+# reusing validated scenario families for related disciplines.
+SEED_SCENARIOS.update(SPECIALIST_SCENARIOS)
+
+AGENT_DOMAIN = {
+    "code": "code",
+    "world": "design",
+    "assets": "design",
+    "animation": "animation",
+    "audio": "animation",
+    "ui": "design",
+    "npc": "code",
+    "networking": "code",
+    "testing": "testing",
+    "repair": "testing",
+    "optimization": "testing",
+}
+
 CONSTRAINTS = [
     "preserve existing public module interfaces",
     "keep server authority over persistent and competitive state",
@@ -205,7 +237,9 @@ def make_row(agent: str, scenario: str, feature: str, focus: str, index: int) ->
     constraint = rng.choice(CONSTRAINTS)
     variation = rng.choice(VARIATIONS)
 
-    if agent == "code":
+    domain = AGENT_DOMAIN.get(agent, "testing")
+
+    if domain == "code":
         artifact = code_artifact(scenario, constraint, variation)
         plan = [
             "inspect the project manifest and existing dependencies",
@@ -214,7 +248,7 @@ def make_row(agent: str, scenario: str, feature: str, focus: str, index: int) ->
             "add or update shared configuration and dependency boundaries",
             "run static validation and regression tests before accepting the change",
         ]
-    elif agent == "design":
+    elif domain == "design":
         artifact = design_artifact(constraint, variation)
         plan = [
             "identify player goals, entry points, exits, and failure-safe spawn areas",
@@ -223,7 +257,7 @@ def make_row(agent: str, scenario: str, feature: str, focus: str, index: int) ->
             "check route readability, multiplayer flow, and performance-sensitive density",
             "write acceptance criteria that another builder can verify",
         ]
-    elif agent == "animation":
+    elif domain == "animation":
         artifact = animation_artifact(constraint, variation)
         plan = [
             "identify gameplay states that require animation coverage",
