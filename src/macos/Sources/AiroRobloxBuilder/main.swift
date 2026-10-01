@@ -30,7 +30,9 @@ final class AIRuntime: ObservableObject {
 
     func send(_ text: String) {
         guard let input, process?.isRunning == true else { messages.append("runtime: ai runtime is not running."); return }
-        let request: [String:String] = ["request_id": UUID().uuidString, "text": text]
+        let projectRoot = ProcessInfo.processInfo.environment["AIRO_PROJECT_ROOT"] ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("airobloxbuilder/projects/my game").path
+        try? FileManager.default.createDirectory(atPath: projectRoot, withIntermediateDirectories: true)
+        let request: [String:String] = ["request_id": UUID().uuidString, "text": text, "project_root": projectRoot]
         guard let data = try? JSONSerialization.data(withJSONObject: request) else { return }
         input.fileHandleForWriting.write(data); input.fileHandleForWriting.write(Data([10]))
     }
