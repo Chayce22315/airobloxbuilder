@@ -144,7 +144,7 @@ class SpecialistRuntime:
         try:
             import torch
             from peft import PeftModel
-            from transformers import AutoModelForCausalLM, AutoTokenizer
+            from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
         except ImportError as exc:
             raise RuntimeError(
                 "specialist adapters require torch, transformers, peft, and accelerate"
@@ -157,11 +157,18 @@ class SpecialistRuntime:
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
 
-        dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+        if not torch.cuda.is_available():
+            raise RuntimeError("specialist inference requires CUDA; use the normal provider for CPU inference")
+        quantization = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_use_double_quant=True,
+        )
         base = AutoModelForCausalLM.from_pretrained(
             base_model,
-            torch_dtype=dtype,
-            device_map="auto",
+            quantization_config=quantization,
+            device_map={"": 0},
             trust_remote_code=True,
         )
         model = PeftModel.from_pretrained(base, str(self.adapter_path(agent)))
