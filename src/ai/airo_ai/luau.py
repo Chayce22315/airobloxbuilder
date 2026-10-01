@@ -33,7 +33,7 @@ def validate_text(path: str, text: str) -> list[LuauIssue]:
     blocks = []
     for number, raw in enumerate(text.splitlines(), 1):
         line = _clean(raw)
-        for _ in re.findall(r"\b(function|if|for|while|do)\b", line):
+        for _ in re.findall(r"\b(function|if|for|while)\b", line):
             blocks.append(number)
         for _ in re.findall(r"\brepeat\b", line):
             blocks.append(-number)
