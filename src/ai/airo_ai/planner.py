@@ -17,7 +17,7 @@ def draft_plan(text: str) -> PlanDraft:
         agents.append("networking")
     if any(x in lower for x in ("map","world","level","mall","building","area","environment","zone","city")):
         agents.append("world")
-    if any(x in lower for x in ("script","luau","code","function")):
+    if any(x in lower for x in ("script","luau","code","function","create","build","make","implement","add")):
         agents.append("code")
     agents.append("testing")
     return PlanDraft(req,phases,agents)
