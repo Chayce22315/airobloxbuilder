@@ -77,7 +77,9 @@ public partial class MainWindow : Window
         if (string.IsNullOrWhiteSpace(text) || text == "tell airo what to build...") return;
         AddMessage("you", text); PromptBox.Clear();
         if (_ai is null || _ai.HasExited) { AddMessage("runtime", "ai runtime is not running."); return; }
-        var payload = JsonSerializer.Serialize(new { request_id = $"{_requestPrefix}-{++_requestNumber}", text });
+        var projectRoot = Environment.GetEnvironmentVariable("AIRO_PROJECT_ROOT") ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "airobloxbuilder", "projects", "my game");
+        Directory.CreateDirectory(projectRoot);
+        var payload = JsonSerializer.Serialize(new { request_id = $"{_requestPrefix}-{++_requestNumber}", text, project_root = projectRoot });
         _ai.StandardInput.WriteLine(payload); _ai.StandardInput.Flush();
     }
 
