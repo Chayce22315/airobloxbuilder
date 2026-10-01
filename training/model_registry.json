@@ -116,16 +116,6 @@
       "lora_alpha": 32,
       "learning_rate": 0.0001,
       "gradient_accumulation_steps": 32
-    },
-    "optimization": {
-      "model_id": "Qwen/Qwen3.5-4B",
-      "method": "qlora",
-      "runtime_adapter_dir": "optimization",
-      "max_seq_length": 2048,
-      "lora_r": 16,
-      "lora_alpha": 32,
-      "learning_rate": 0.0001,
-      "gradient_accumulation_steps": 32
     }
   }
 }
