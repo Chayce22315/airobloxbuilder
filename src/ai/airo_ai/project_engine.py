@@ -111,3 +111,35 @@ def apply_changes(root: Path, changes: tuple[FileChange, ...]) -> None:
 
 def validate_after_changes(root: Path) -> ValidationReport:
     return validate_project_full(root)
+
+def ensure_project_layout(root: Path, project_name: str = "my game") -> None:
+    root.mkdir(parents=True, exist_ok=True)
+    for directory in (
+        "src/ServerScriptService",
+        "src/ReplicatedStorage/Shared",
+        "src/ReplicatedStorage/Remotes",
+        "src/StarterPlayer/StarterPlayerScripts",
+        "src/StarterGui",
+        "src/Workspace",
+        "src/ServerStorage",
+        "assets/models",
+        "assets/textures",
+        "assets/animations",
+        "assets/audio",
+        "tests",
+    ):
+        (root / directory).mkdir(parents=True, exist_ok=True)
+    manifest = root / "project.json"
+    if not manifest.exists():
+        manifest.write_text(json.dumps({
+            "name": project_name,
+            "tree": {
+                "$className": "DataModel",
+                "ReplicatedStorage": {"$path": "src/ReplicatedStorage"},
+                "ServerScriptService": {"$path": "src/ServerScriptService"},
+                "ServerStorage": {"$path": "src/ServerStorage"},
+                "StarterGui": {"$path": "src/StarterGui"},
+                "StarterPlayer": {"$path": "src/StarterPlayer"},
+                "Workspace": {"$path": "src/Workspace"}
+            }
+        }, indent=2) + "\n", encoding="utf-8")
